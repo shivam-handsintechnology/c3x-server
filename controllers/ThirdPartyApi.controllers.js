@@ -128,6 +128,36 @@ module.exports = {
       return errorHandler(res, 500, error);
     }
   }),
+  Trackbybooking: asyncHandler(async (req, res, next) => {
+    try {
+      const payload = req.body;
+      delete payload["AccountNo"];
+      let response = validateTracking(payload);
+      if (response.error) {
+        ////console.log(response.error)
+        let ermessage =
+          response.error.details.length > 0 &&
+          response.error.details[0].message;
+        throw new Error(ermessage);
+      }
+
+      await axiosAPI
+        .post("Trackbybooking", payload)
+        .then((response) => {
+          if (response.data.Code < 0) {
+            throw new Error(response.data.Description);
+          } else {
+            return sendResponse(res, 200, response.data);
+          }
+        })
+        .catch((error) => {
+          return errorHandler(res, 500, error);
+        });
+      // return sendResponse(res, 201, payload)
+    } catch (error) {
+      return errorHandler(res, 500, error);
+    }
+  }),
   BookingHistory: asyncHandler(async (req, res, next) => {
     try {
       const payload = req.body;

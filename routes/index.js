@@ -22,6 +22,7 @@ Router.post("/pay", PaymentController.Pay)
 // Tracking Routes
 Router.post("/Tracking", Credentials_Verify, ThirdPartyAPiController.Tracking)
 Router.post("/Trackbyreference", Credentials_Verify, ThirdPartyAPiController.TrackingBYRefrence)
+Router.post("/Trackbybooking", Credentials_Verify, ThirdPartyAPiController.Trackbybooking)
 // End of Tracking Routes
 // BookingHistory Routes
 Router.post("/BookingHistory", verify_token, ThirdPartyAPiController.BookingHistory)
