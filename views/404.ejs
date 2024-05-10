@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Not Found</title>
+    <style>
+        /* Add CSS styles for centering and animation */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .error-container {
+            text-align: center;
+        }
+
+        .error-message {
+            font-size: 48px;
+            font-weight: bold;
+            color: rgb(44, 162, 198);
+            /* Orange color */
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-30px);
+            }
+
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <div class="error-message">404</div>
+        <p>
+            <%= message %>
+        </p>
+        <p>Sorry, the requested page could not be found.</p>
+    </div>
+</body>
+
+</html>

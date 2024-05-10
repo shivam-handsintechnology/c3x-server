@@ -1,0 +1,43 @@
+const Router = require("express").Router()
+const UsersRouter = require("./users.routes")
+const AdminRouter = require("./Admin.routes")
+const ThirdPartyAPiController = require("../controllers/ThirdPartyApi.controllers")
+const PaymentController = require("../controllers/Payment.controllers")
+const ServiceTypeController = require("../controllers/ServiceTypes.controllers")
+const { verify_token, CheckAdminToken, Credentials_Verify, CheckManageSubusers } = require("../utils/AuthToken")
+const AddressRoutes = require("./Address.routes")
+const ServiceTypeRoutes = require("./ServiceType.routes")
+Router.use("/auth", UsersRouter)
+Router.use("/addresses", verify_token, AddressRoutes)
+Router.use("/ServiceTypes", CheckAdminToken, ServiceTypeRoutes)
+Router.get("/activeServicetypes", Credentials_Verify, ServiceTypeController.activeServiceType)
+Router.use("/users", CheckAdminToken, AdminRouter)
+// Payment Getewatway Routes
+Router.use("/pay", PaymentController.Pay)
+// Tracking Routes
+Router.post("/Tracking", Credentials_Verify, ThirdPartyAPiController.Tracking)
+Router.post("/Trackbyreference", Credentials_Verify, ThirdPartyAPiController.TrackingBYRefrence)
+// End of Tracking Routes
+// BookingHistory Routes
+Router.post("/BookingHistory", verify_token, ThirdPartyAPiController.BookingHistory)
+// CreateAirwayBill Routes
+Router.post("/CreateAirwayBill", verify_token, ThirdPartyAPiController.CreateAirwayBill)
+// End of CreateAirwayBill Routes
+Router.get("/DueInvoices", verify_token, ThirdPartyAPiController.DueInvoices)
+Router.get("/PaymentDues", verify_token, ThirdPartyAPiController.PaymentDues)
+Router.post("/PrepaidAccountStatus", verify_token, ThirdPartyAPiController.PrepaidAccountStatus)
+Router.get("/PrepaidPaymentHistory", verify_token, ThirdPartyAPiController.PrepaidPaymentHistory)
+Router.post("/RateFinder", Credentials_Verify, ThirdPartyAPiController.RateFinder)
+Router.post("/asaGuestSchedulePickup", Credentials_Verify, ThirdPartyAPiController.SchedulePickup)
+Router.post("/SchedulePickup", Credentials_Verify, ThirdPartyAPiController.SchedulePickup)
+Router.post("/ShipmentHistory", verify_token, ThirdPartyAPiController.ShipmentHistory)
+Router.post("/VerifyAccount", verify_token, ThirdPartyAPiController.VerifyAccount)
+Router.get("/PrepaidAccountStatus", verify_token, ThirdPartyAPiController.PrepaidAccountStatus)
+Router.post("/InvoicePDFFormat", verify_token, ThirdPartyAPiController.InvoicePDFFormat)
+Router.post("/AirwayBillPDFFormat", verify_token, ThirdPartyAPiController.AirwayBillPDFFormat)
+Router.get("/CountryMaster", Credentials_Verify, ThirdPartyAPiController.CountryMaster)
+Router.post("/CityList", Credentials_Verify, ThirdPartyAPiController.CityList)
+Router.post("/DeliveryDetailsForAccounts", verify_token, ThirdPartyAPiController.DeliveryDetailsForAccounts)
+Router.post("/PickupSummaryForAccounts", verify_token, ThirdPartyAPiController.PickupSummaryForAccounts)
+Router.post("/AccountDayWiseShipments", verify_token, ThirdPartyAPiController.AccountDayWiseShipments)
+module.exports = Router
