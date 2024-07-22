@@ -680,12 +680,19 @@ module.exports = {
       const payload = req.body;
       let ShipmentReadyDate = new Date(payload["BookingData"]["ShipmentReadyDate"])
       const isToday = ShipmentReadyDate.toDateString() === new Date().toDateString();
+
       let arraysplitdata = payload["BookingData"]["ShipmentReadyTime"].split("-")
       payload["BookingData"]["BusinessClosingTime"] = arraysplitdata[1] + ":00"
       payload["BookingData"]["ShipmentReadyTime"] = arraysplitdata[0] + ":00"
-      if (isToday && payload["BookingData"]["BusinessClosingTime"].includes('17')) {
+      let currenttime = new Date().getHours();
+      console.log("isToday", isToday)
+      console.log("currenttime", currenttime)
+      if (isToday && currenttime >= 17) {
         throw new Error(`Pick Up Time Slot is Not Allowed between ${payload["BookingData"]["ShipmentReadyTime"]} to ${payload["BookingData"]["BusinessClosingTime"]}`)
       }
+      // if (isToday && payload["BookingData"]["BusinessClosingTime"].includes('17')) {
+      //   throw new Error(`Pick Up Time Slot is Not Allowed between ${payload["BookingData"]["ShipmentReadyTime"]} to ${payload["BookingData"]["BusinessClosingTime"]}`)
+      // }
       // payload["BookingData"]["AccountNo"] = payload["AccountNo"]
       delete payload["AccountNo"];
       if (payload["BookingData"]["ProductType"] !== "DOX") {
@@ -720,7 +727,8 @@ module.exports = {
       let arraysplitdata = payload["BookingData"]["ShipmentReadyTime"].split("-")
       payload["BookingData"]["BusinessClosingTime"] = arraysplitdata[1] + ":00"
       payload["BookingData"]["ShipmentReadyTime"] = arraysplitdata[0] + ":00"
-      if (isToday && payload["BookingData"]["BusinessClosingTime"].includes('17')) {
+      let currenttime = new Date().getHours();
+      if (isToday && currenttime >= 17) {
         throw new Error(`Pick Up Time Slot is Not Allowed between ${payload["BookingData"]["ShipmentReadyTime"]} to ${payload["BookingData"]["BusinessClosingTime"]}`)
       }
       payload["BookingData"]["AccountNo"] = payload["AccountNo"]
