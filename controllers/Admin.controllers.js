@@ -85,7 +85,7 @@ module.exports = {
       const {
         username,
         full_name,
-        phone_number,telephone_number,
+        phone_number, telephone_number,
         email,
         company_name,
         address_line_1,
@@ -190,9 +190,9 @@ module.exports = {
         html: template
       };
 
-      if (user.isAdmin) {
-        await sendEmail(options);
-      }
+
+      await sendEmail(options);
+
 
       return sendResponse(res, 201, { message: "User added successfully", user: savedUser }, "User added successfully");
     } catch (error) {
@@ -309,7 +309,7 @@ module.exports = {
       if (!existingUser) {
         return sendResponse(res, 404, "User not found");
       }
-        console.log("userId", userId)
+      console.log("userId", userId)
       // Delete user
       await MyServicetypesList.findOneAndDelete({ userId: userId })
       await AddressModel.findOneAndDelete({ userId: userId })
