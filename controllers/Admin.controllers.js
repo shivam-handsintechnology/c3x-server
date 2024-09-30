@@ -191,7 +191,7 @@ module.exports = {
       };
 
 
-      await sendEmail(options);
+      sendEmail(options);
 
 
       return sendResponse(res, 201, { message: "User added successfully", user: savedUser }, "User added successfully");
@@ -271,9 +271,8 @@ module.exports = {
         html: template
       }
 
-      if (req.user.isAdmin) {
-        await sendEmail(options)
-      }
+      sendEmail(options)
+
       return sendResponse(res, 200, data, "User updated successfully");
     } catch (error) {
       console.log(error);

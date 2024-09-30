@@ -16,7 +16,7 @@ module.exports = {
             } else {
                 data = await ContactUsModel.create(req.body)
             }
-            await sendEmail({
+            sendEmail({
                 email: req.body.email,
                 subject: "Contact Us",
                 contact: true,
@@ -30,7 +30,7 @@ module.exports = {
 
                 // 
             })
-            await sendEmail({
+            sendEmail({
                 email: process.env.CONTACT_EMAIL_HOST_USER,
                 subject: "Contact Us",
                 // contact: true,

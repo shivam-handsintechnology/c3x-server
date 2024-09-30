@@ -108,7 +108,7 @@ module.exports = {
         text: `Hello User is created please check`,
         html: template
       }
-      await sendEmail(options)
+      sendEmail(options)
       return sendResponse(res, 201, { ...user, access_token }, "User Registered Successfully")
     } catch (error) {
       console.log(error)
