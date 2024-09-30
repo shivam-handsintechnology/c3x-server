@@ -123,12 +123,12 @@ module.exports = {
         Origin,
         telephone_number
       };
-
+      let password = uuidv4()
       const userDetail = {
         username,
         full_name,
         phone_number,
-        password: uuidv4(),
+        password: password,
         email,
         dashboard,
         AccountNo,
@@ -178,7 +178,7 @@ module.exports = {
         user: savedUser,
         frontendurl: frontendUrl,
         url: headers.origin,
-        password: userDetail.password,
+        password: password,
         message: "Your Account Created Successfully. Below are your system generated credentials"
       });
 
@@ -213,6 +213,7 @@ module.exports = {
       }
       //console.log("service_types", req.body.service_types)
       let originalpassword = req.body.password
+      req.body.originalpassword = req.body.password
       if (req.body.password) {
         req.body.password = await hashPassword(req.body.password)
       }
@@ -261,8 +262,9 @@ module.exports = {
       });
 
       let frontendurl = req.headers.origin + "/Login" ? req.headers.origin : "http://localhost:4000/Login"
-
-      const template = await ejs.renderFile(file, { url: req.headers.origin, user: data, frontendurl, password: originalpassword, message: "Your Account Updated Successfully. Below are your system generated credentials" });
+      console.log("req.body.originalpassword", req.body.originalpassword)
+      console.log("req.body.originalpassword", req.body)
+      const template = await ejs.renderFile(file, { url: req.headers.origin, user: data, frontendurl, password: req.body.originalpassword, message: "Your Account Updated Successfully. Below are your system generated credentials" });
       let options = {
         fromemail: req.user.email,
         email: data.email,
