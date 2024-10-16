@@ -407,6 +407,12 @@ module.exports = {
           throw new Error("You can only upload 100 records at a time")
         }
         for (let data of excelData) {
+          if (data["Orgin"] && data["Orgin"]?.length > 3) {
+            throw new Error("Please Enter 3 Digit Origin");
+          }
+          if (data["Dest"] && data["Dest"]?.length > 3) {
+            throw new Error("Please Enter 3 Digit Desttination code");
+          }
 
           const payload = {
             AccountNo: req.body.AccountNo,

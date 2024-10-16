@@ -230,32 +230,43 @@ module.exports = {
 
       }
       if (req.body.address && Object.keys(req.body.address).length > 0) {
-        console.log("_id", req.body.address._id, "userid", req.user._id)
+        console.log("_id", req.body.address._id, "userid", req.user._id);
+
+        const userAddressData = await AddressModel.findOne({ userId: req.user._id });
+
+        if (!userAddressData) {
+          // If no addresses exist for the user, create a new record
+          let addressdata = await AddressModel.create({
+            Address: [{ ...req.body.address }],
+            userId: req.user._id,
+          });
+          req.body.address = addressdata.Address[0]._id;
+          return;
+        }
+
         if (req.body.address._id) {
+          // Find the specific address inside the Address array
+          let addressToUpdate = userAddressData.Address.find(address => address._id.toString() === req.body.address._id);
 
-          let addressupdate = await AddressModel.findOneAndUpdate(
-            { userId: req.body._id, 'Address._id': req.body.address._id },
-            { $set: { 'Address.$': req.body.address, } },
-            { new: true } // To get the updated document as the result
-          );
-          console.log("addressupdate", addressupdate)
-          req.body.address = req.body.address._id
-        } else {
-          const existingAddress = await AddressModel.findOne({ userId: req.user._id });
-          if (existingAddress) {
-            await existingAddress.Address.push(req.body)
-            let addressdata = await existingAddress.save()
-            req.body.address = addressdata.Address[0]._id
-          } else if (!existingAddress) {
-            let addressdata = await AddressModel.create({
-              Address: [{ ...req.body.address }],
-              userId: req.body._id,
-            });
-            req.body.address = addressdata.Address[0]._id
+          if (addressToUpdate) {
+            // Merge new fields into the existing address object
+            Object.assign(addressToUpdate, req.body.address);
+
+            // Save the updated document back to the database
+            await userAddressData.save();
+            console.log("Updated address:", addressToUpdate);
+            req.body.address = addressToUpdate._id;
+          } else {
+            console.log("Address not found");
           }
-
+        } else {
+          // If address._id doesn't exist, add a new address to the existing addresses
+          userAddressData.Address.push(req.body.address);
+          let addressdata = await userAddressData.save();
+          req.body.address = addressdata.Address[addressdata.Address.length - 1]._id;
         }
       }
+
       delete req.body.service_types
       let data = await UserModel.findByIdAndUpdate(req.body._id, req.body, {
         new: true,
