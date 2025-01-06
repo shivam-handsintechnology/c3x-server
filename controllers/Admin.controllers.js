@@ -85,7 +85,7 @@ module.exports = {
       const {
         username,
         full_name,
-        phone_number,telephone_number,
+        phone_number, telephone_number,
         email,
         company_name,
         address_line_1,
@@ -123,12 +123,12 @@ module.exports = {
         Origin,
         telephone_number
       };
-
+      let password = uuidv4()
       const userDetail = {
         username,
         full_name,
         phone_number,
-        password: uuidv4(),
+        password: password,
         email,
         dashboard,
         AccountNo,
@@ -178,7 +178,7 @@ module.exports = {
         user: savedUser,
         frontendurl: frontendUrl,
         url: headers.origin,
-        password: userDetail.password,
+        password: password,
         message: "Your Account Created Successfully. Below are your system generated credentials"
       });
 
@@ -190,9 +190,9 @@ module.exports = {
         html: template
       };
 
-      if (user.isAdmin) {
-        await sendEmail(options);
-      }
+
+      sendEmail(options);
+
 
       return sendResponse(res, 201, { message: "User added successfully", user: savedUser }, "User added successfully");
     } catch (error) {
@@ -213,6 +213,7 @@ module.exports = {
       }
       //console.log("service_types", req.body.service_types)
       let originalpassword = req.body.password
+      req.body.originalpassword = req.body.password
       if (req.body.password) {
         req.body.password = await hashPassword(req.body.password)
       }
@@ -229,40 +230,52 @@ module.exports = {
 
       }
       if (req.body.address && Object.keys(req.body.address).length > 0) {
-        console.log("_id", req.body.address._id, "userid", req.user._id)
+        console.log("_id", req.body.address._id, "userid", req.user._id);
+
+        const userAddressData = await AddressModel.findOne({ userId: req.user._id });
+
+        if (!userAddressData) {
+          // If no addresses exist for the user, create a new record
+          let addressdata = await AddressModel.create({
+            Address: [{ ...req.body.address }],
+            userId: req.user._id,
+          });
+          req.body.address = addressdata.Address[0]._id;
+          return;
+        }
+
         if (req.body.address._id) {
+          // Find the specific address inside the Address array
+          let addressToUpdate = userAddressData.Address.find(address => address._id.toString() === req.body.address._id);
 
-          let addressupdate = await AddressModel.findOneAndUpdate(
-            { userId: req.body._id, 'Address._id': req.body.address._id },
-            { $set: { 'Address.$': req.body.address, } },
-            { new: true } // To get the updated document as the result
-          );
-          console.log("addressupdate", addressupdate)
-          req.body.address = req.body.address._id
-        } else {
-          const existingAddress = await AddressModel.findOne({ userId: req.user._id });
-          if (existingAddress) {
-            await existingAddress.Address.push(req.body)
-            let addressdata = await existingAddress.save()
-            req.body.address = addressdata.Address[0]._id
-          } else if (!existingAddress) {
-            let addressdata = await AddressModel.create({
-              Address: [{ ...req.body.address }],
-              userId: req.body._id,
-            });
-            req.body.address = addressdata.Address[0]._id
+          if (addressToUpdate) {
+            // Merge new fields into the existing address object
+            Object.assign(addressToUpdate, req.body.address);
+
+            // Save the updated document back to the database
+            await userAddressData.save();
+            console.log("Updated address:", addressToUpdate);
+            req.body.address = addressToUpdate._id;
+          } else {
+            console.log("Address not found");
           }
-
+        } else {
+          // If address._id doesn't exist, add a new address to the existing addresses
+          userAddressData.Address.push(req.body.address);
+          let addressdata = await userAddressData.save();
+          req.body.address = addressdata.Address[addressdata.Address.length - 1]._id;
         }
       }
+
       delete req.body.service_types
       let data = await UserModel.findByIdAndUpdate(req.body._id, req.body, {
         new: true,
       });
 
       let frontendurl = req.headers.origin + "/Login" ? req.headers.origin : "http://localhost:4000/Login"
-
-      const template = await ejs.renderFile(file, { url: req.headers.origin, user: data, frontendurl, password: originalpassword, message: "Your Account Updated Successfully. Below are your system generated credentials" });
+      console.log("req.body.originalpassword", req.body.originalpassword)
+      console.log("req.body.originalpassword", req.body)
+      const template = await ejs.renderFile(file, { url: req.headers.origin, user: data, frontendurl, password: req.body.originalpassword, message: "Your Account Updated Successfully. Below are your system generated credentials" });
       let options = {
         fromemail: req.user.email,
         email: data.email,
@@ -271,9 +284,8 @@ module.exports = {
         html: template
       }
 
-      if (req.user.isAdmin) {
-        await sendEmail(options)
-      }
+      sendEmail(options)
+
       return sendResponse(res, 200, data, "User updated successfully");
     } catch (error) {
       console.log(error);
@@ -309,7 +321,7 @@ module.exports = {
       if (!existingUser) {
         return sendResponse(res, 404, "User not found");
       }
-        console.log("userId", userId)
+      console.log("userId", userId)
       // Delete user
       await MyServicetypesList.findOneAndDelete({ userId: userId })
       await AddressModel.findOneAndDelete({ userId: userId })

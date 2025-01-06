@@ -407,6 +407,12 @@ module.exports = {
           throw new Error("You can only upload 100 records at a time")
         }
         for (let data of excelData) {
+          if (data["Orgin"] && data["Orgin"]?.length > 3) {
+            throw new Error("Please Enter 3 Digit Origin");
+          }
+          if (data["Dest"] && data["Dest"]?.length > 3) {
+            throw new Error("Please Enter 3 Digit Desttination code");
+          }
 
           const payload = {
             AccountNo: req.body.AccountNo,
@@ -679,12 +685,17 @@ module.exports = {
     try {
       const payload = req.body;
       let ShipmentReadyDate = new Date(payload["BookingData"]["ShipmentReadyDate"])
+      /*  this for testing
+      let ShipmentReadyDate = new Date('2024-07-01')
+      let currenttime = 17;
+      */
+      let currenttime = new Date().getHours();
       const isToday = ShipmentReadyDate.toDateString() === new Date().toDateString();
 
       let arraysplitdata = payload["BookingData"]["ShipmentReadyTime"].split("-")
       payload["BookingData"]["BusinessClosingTime"] = arraysplitdata[1] + ":00"
       payload["BookingData"]["ShipmentReadyTime"] = arraysplitdata[0] + ":00"
-      let currenttime = new Date().getHours();
+
       console.log("isToday", isToday)
       console.log("currenttime", currenttime)
       if (isToday && currenttime >= 17) {
